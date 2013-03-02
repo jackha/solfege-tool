@@ -68,7 +68,7 @@ var ControlPanelView = Backbone.View.extend({
 */
   initialize: function(){
     this.status = STATUS_STOP;
-    this.repeat_time = 10000;
+    this.repeat_time = 5000;
 	this.note = 60;  // start note
 	this.min_note = 20;
 	this.max_note = 100;
@@ -81,8 +81,8 @@ var ControlPanelView = Backbone.View.extend({
     "click .btn-single": "single",
 	"click .btn-repeat": "repeat",
     "click .btn-preset1": "preset1",
-    "click .btn-preset1": "preset2",
-    "click .btn-preset1": "preset3"
+    "click .btn-preset2": "preset2",
+    "click .btn-preset3": "preset3"
     },
   doStartStop: function() {
     if (this.status == STATUS_STOP) {
@@ -101,6 +101,7 @@ var ControlPanelView = Backbone.View.extend({
     }
   },
   preset1: function() {
+	console.log('preset1');
     this.intervals = {
     };
 	this.intervals[I_MIN_2] = true;
@@ -120,6 +121,7 @@ var ControlPanelView = Backbone.View.extend({
 	this.intervals[-I_5] = true;	
   },
   preset2: function() {
+	console.log('preset2');
     this.intervals = {
     };
 	this.intervals[I_MIN_2] = true;
