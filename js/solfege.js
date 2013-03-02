@@ -37,8 +37,9 @@ function interval_name(interval) {
 		11: 'Major 7th',
 		12: 'Octave'
 	}
-	console.log(names);
-	return names[Math.abs(interval)]
+	//console.log(names);
+	if (interval >= 0) {result = '';} else {result = '-';}
+	result += names[Math.abs(interval)]
 }
 
 function note_name(note) {
@@ -67,33 +68,21 @@ var ControlPanelView = Backbone.View.extend({
 */
   initialize: function(){
     this.status = STATUS_STOP;
-    this.repeat_time = 5000;
-	this.note = 50;  // start note
+    this.repeat_time = 10000;
+	this.note = 60;  // start note
 	this.min_note = 20;
 	this.max_note = 100;
-    this.intervals = {
-    };
-	this.intervals[I_MIN_2] = true;
-	this.intervals[I_2] = true;
-	this.intervals[I_MIN_3] = true;
-	this.intervals[I_3] = true;
-	this.intervals[I_4] = true;
-	this.intervals[I_DIM_5] = true;
-	this.intervals[I_5] = true;
-
-	this.intervals[-I_MIN_2] = true;
-	this.intervals[-I_2] = true;
-	this.intervals[-I_MIN_3] = true;
-	this.intervals[-I_3] = true;
-	this.intervals[-I_4] = true;
-	this.intervals[-I_DIM_5] = true;
-	this.intervals[-I_5] = true;
-	
-	console.log(this.intervals);
+	this.interval = 0; //last played interval
+	this.preset1();
+	this.harmonic = false;
   },
   events: {
     "click .btn-start-stop": "doStartStop",
-    "click .btn-reset": "reset"
+    "click .btn-single": "single",
+	"click .btn-repeat": "repeat",
+    "click .btn-preset1": "preset1",
+    "click .btn-preset1": "preset2",
+    "click .btn-preset1": "preset3"
     },
   doStartStop: function() {
     if (this.status == STATUS_STOP) {
@@ -111,8 +100,56 @@ var ControlPanelView = Backbone.View.extend({
       this.status = STATUS_STOP;
     }
   },
-  reset: function() {
-	
+  preset1: function() {
+    this.intervals = {
+    };
+	this.intervals[I_MIN_2] = true;
+	this.intervals[I_2] = true;
+	this.intervals[I_MIN_3] = true;
+	this.intervals[I_3] = true;
+	this.intervals[I_4] = true;
+	this.intervals[I_DIM_5] = true;
+	this.intervals[I_5] = true;
+
+	this.intervals[-I_MIN_2] = true;
+	this.intervals[-I_2] = true;
+	this.intervals[-I_MIN_3] = true;
+	this.intervals[-I_3] = true;
+	this.intervals[-I_4] = true;
+	this.intervals[-I_DIM_5] = true;
+	this.intervals[-I_5] = true;	
+  },
+  preset2: function() {
+    this.intervals = {
+    };
+	this.intervals[I_MIN_2] = true;
+	this.intervals[I_2] = true;
+	this.intervals[I_MIN_3] = true;
+	this.intervals[I_3] = true;
+	this.intervals[I_4] = true;
+	this.intervals[I_DIM_5] = true;
+	this.intervals[I_5] = true;
+	this.intervals[I_MIN_6] = true;
+	this.intervals[I_6] = true;
+	this.intervals[I_MIN_7] = true;
+	this.intervals[I_7] = true;
+	this.intervals[I_OCTAVE] = true;
+
+	this.intervals[-I_MIN_2] = true;
+	this.intervals[-I_2] = true;
+	this.intervals[-I_MIN_3] = true;
+	this.intervals[-I_3] = true;
+	this.intervals[-I_4] = true;
+	this.intervals[-I_DIM_5] = true;
+	this.intervals[-I_5] = true;	
+	this.intervals[-I_MIN_6] = true;
+	this.intervals[-I_6] = true;
+	this.intervals[-I_MIN_7] = true;
+	this.intervals[-I_7] = true;
+	this.intervals[-I_OCTAVE] = true;
+  },
+  preset3: function() {
+    this.preset1();
   },
   choose_interval: function() {
     var result;
@@ -122,22 +159,36 @@ var ControlPanelView = Backbone.View.extend({
            result = prop;
     return parseInt(result);
   },
+  play_interval: function(me) {
+	if (me.harmonic) {
+	    play_note(me.note - me.interval);  // actually we're 1 step ahead, as me.note is already the new root.
+	    play_note(me.note);
+	} else {
+    play_note(me.note - me.interval);  // actually we're 1 step ahead, as me.note is already the new root.
+		setTimeout(function(){
+			play_note(me.note); 
+		}, 1000);
+	}
+},
+repeat: function(me) {
+	this.play_interval(this);
+},
+  single_step: function(me) {
+		// pick new note
+		me.interval = me.choose_interval();
+      console.log('interval from last: ' + interval_name(me.interval));
+	  me.note += me.interval;  // set this as starting point as new root
+      me.play_interval(me)
+  },
+  single: function() {
+	this.single_step(this);
+  },
   play_notes: function (me) {
     // Because we use callbacks, it is important to use 'me'.
     fun = function() {    
       if (me.status == STATUS_PLAY) {
-		// pick new note
-		var interval;
-		interval = me.choose_interval();
-        console.log('playing note: ' + note_name(me.note) + ', interval from last: ' + interval_name(interval));
-        
-        // most important part: interact with OpenLayers.
-        play_note(me.note);
-		setTimeout(function(){
-			play_note(me.note + interval); 
-			me.note += interval;  // set this as starting point as new root
-		}, 1000);
-        
+		
+        me.single_step(me);
 		
       } else {
         return;  // Animation has stopped
@@ -149,6 +200,7 @@ var ControlPanelView = Backbone.View.extend({
 });
 
 function play_note(note) {
+	console.log('playing note: ' + note_name(note));
 	if (ready === null) {
 		console.log('error: MIDI not initialized yet.')
 		return;
@@ -170,14 +222,11 @@ function init() {
 		instrument: "acoustic_grand_piano",
 		callback: function() {
 			ready = true;
+			
 			console.log('Initialized!');
-/*			var delay = 0; // play one note every quarter second
-			var note = 50; // the MIDI note
-			var velocity = 127; // how hard the note hits
-			// play the note
-			MIDI.setVolume(0, 127);
-			MIDI.noteOn(0, note, velocity, delay);
-			MIDI.noteOff(0, note, delay + 0.75); */
+			$("a.btn-start-stop").removeClass("disabled");
+			$("a.btn-single").removeClass("disabled");
+			$("a.btn-repeat").removeClass("disabled");
 		}
 	});
 };

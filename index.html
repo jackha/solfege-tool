@@ -26,17 +26,29 @@
 <div class="container">
 	<div class="jumbotron">
 	        <h1>Solfege tool!</h1>
-	        <p class="lead">Training solfege? Try to repeat after me.</p>
+	        <p class="lead">Training solfege? Try to repeat after me. Press start and I'll start at C.</p>
 
 		  <div id="controlpanel" class="well">
 		    <div id="control-buttons">
-		      <a class="btn btn-large btn-success btn-start-stop" href="#">
+		      <a class="btn btn-large btn-success btn-start-stop disabled" href="#">
 		        <i class="icon-play"></i>
 		        <span id="html-start-stop">Start</span>
 		      </a>
-		      <a class="btn btn-large btn-reset" href="#">
+		      <a class="btn btn-large btn-success btn-single disabled" href="#">
+		        <i class="icon-play"></i>
+		        <span id="html-start-stop">1 interval</span>
+		      </a>
+		      <a class="btn btn-large btn-success btn-repeat disabled" href="#">
+		        <i class="icon-play"></i>
+		        <span id="html-start-stop">repeat last</span>
+		      </a>
+		      <a class="btn btn-large btn-preset1" href="#">
 		        <i class="icon-retweet"></i>
-		        Reset
+		        Preset1
+		      </a>
+		      <a class="btn btn-large btn-preset2" href="#">
+		        <i class="icon-retweet"></i>
+		        Preset2
 		      </a>
 		    </div>
 		  </div>
